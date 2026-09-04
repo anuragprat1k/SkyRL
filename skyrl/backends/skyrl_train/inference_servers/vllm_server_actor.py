@@ -29,6 +29,8 @@ from vllm.utils import random_uuid
 from vllm.utils.system_utils import set_ulimit
 
 from skyrl.backends.skyrl_train.inference_servers.common import (
+    default_bind_host,
+    format_http_url,
     ServerInfo,
     find_and_reserve_port,
     get_node_ip,
@@ -152,7 +154,7 @@ class VLLMServerActor(ServerActorProtocol):
         self._cli_args.distributed_executor_backend = distributed_executor_backend
 
         # Update args with our assigned host/port
-        self._cli_args.host = "0.0.0.0"
+        self._cli_args.host = default_bind_host(self._ip)
         self._cli_args.port = self._port
 
         # PD disaggregation: setup NIXL side channel for KV transfer
@@ -281,7 +283,7 @@ class VLLMServerActor(ServerActorProtocol):
 
     async def _wait_until_healthy(self, timeout: float = SKYRL_WAIT_UNTIL_INFERENCE_SERVER_HEALTHY_TIMEOUT_S) -> None:
         """Poll the /health endpoint until it responds OK."""
-        url = f"http://{self._ip}:{self._port}/health"
+        url = format_http_url(self._ip, self._port, "/health")
         start_time = time.time()
 
         async with httpx.AsyncClient() as client:
@@ -561,7 +563,7 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     cli_args = _build_standalone_cli_args(argv)
     if not cli_args.host:
-        cli_args.host = "0.0.0.0"
+        cli_args.host = default_bind_host(get_node_ip())
     set_ulimit()
     logger.info(f"Starting standalone SkyRL vLLM server on {cli_args.host}:{cli_args.port}")
     asyncio.run(_build_and_serve_vllm_server(cli_args, enable_ray_prometheus_stats=False))
