@@ -926,6 +926,9 @@ class TrainerConfig(BaseConfig):
     ckpt_interval: int = 10
     hf_save_interval: int = -1
     """Save HuggingFace-format model every N steps. ``-1`` to disable."""
+    save_on_epoch_end: bool = True
+    """Also save the checkpoint / HF model at the last step of every epoch, in addition to the intervals
+    above. Set ``False`` when an epoch is only a handful of steps (small task sets), otherwise every step saves."""
     export_path: str = field(default_factory=lambda: os.path.expanduser("~/exports/"))
     """Path for exported artifacts (HF models, debug dumps, etc.)."""
     bf16: bool = True

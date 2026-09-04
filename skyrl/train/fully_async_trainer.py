@@ -528,10 +528,10 @@ class FullyAsyncRayPPOTrainer(RayPPOTrainer):
                                 )
                             # Save the end-of-epoch checkpoint the normal is_epoch_end path would have, since
                             # we break before reaching it.
-                            if self.cfg.trainer.ckpt_interval > 0:
+                            if self.cfg.trainer.ckpt_interval > 0 and self.cfg.trainer.save_on_epoch_end:
                                 with Timer("save_checkpoints", self.all_timings):
                                     await asyncio.to_thread(self.save_checkpoints)
-                            if self.cfg.trainer.hf_save_interval > 0:
+                            if self.cfg.trainer.hf_save_interval > 0 and self.cfg.trainer.save_on_epoch_end:
                                 with Timer("save_hf_model", self.all_timings):
                                     await asyncio.to_thread(self.save_models)
                             break
@@ -583,12 +583,13 @@ class FullyAsyncRayPPOTrainer(RayPPOTrainer):
 
                     # 7. Checkpointing. At interval and at the last step of each epoch.
                     is_epoch_end = trained_steps_this_epoch == self.num_steps_per_epoch
+                    epoch_end_save = is_epoch_end and self.cfg.trainer.save_on_epoch_end
                     if self.cfg.trainer.ckpt_interval > 0:
-                        if is_epoch_end or self.global_step % self.cfg.trainer.ckpt_interval == 0:
+                        if epoch_end_save or self.global_step % self.cfg.trainer.ckpt_interval == 0:
                             with Timer("save_checkpoints", self.all_timings):
                                 await asyncio.to_thread(self.save_checkpoints)
                     if self.cfg.trainer.hf_save_interval > 0:
-                        if is_epoch_end or self.global_step % self.cfg.trainer.hf_save_interval == 0:
+                        if epoch_end_save or self.global_step % self.cfg.trainer.hf_save_interval == 0:
                             with Timer("save_hf_model", self.all_timings):
                                 await asyncio.to_thread(self.save_models)
 

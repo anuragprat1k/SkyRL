@@ -94,6 +94,10 @@ Checkpointing behavior is controlled by several parameters in the YAML configura
   - **Default**: `10`
   - **Purpose**: Save checkpoints every N training steps
 
+`save_on_epoch_end`
+  - **Default**: `true`
+  - **Purpose**: Also save a checkpoint (and HF model, if `hf_save_interval > 0`) at the last step of every epoch. Set to `false` when the training set is small enough that an epoch is only a few steps, otherwise every step triggers a save.
+
 `ckpt_path`
   - **Default**: `"~/ckpts/"`
   - **Purpose**: Base directory where all checkpoints are stored

@@ -100,6 +100,7 @@ ckpt_path: "~/ckpts/" # Local directory path or cloud storage path (S3, GCP) for
 max_ckpts_to_keep: -1 # -1 to keep all checkpoints, N to keep the last N checkpoints
 ckpt_interval: 10  # Save full training checkpoint every `ckpt_interval` steps.
 hf_save_interval: -1  # Save HF format model(s) every `hf_save_interval` steps.
+save_on_epoch_end: true  # Also save checkpoint / HF model at the last step of every epoch. Set false for tiny datasets where an epoch is a few steps.
 export_path: "~/exports/" # Path for exported artifacts (HF models, debug dumps, etc.)
 project_name: "skyrl"
 run_name: "test_run"
